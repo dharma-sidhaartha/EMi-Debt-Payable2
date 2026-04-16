@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Debtor App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-container {
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .auth-container h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .primary-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .primary-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .secondary-btn {
+            background: #eee;
+            color: #333;
+        }
+
+        .secondary-btn:hover {
+            background: #ddd;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .toggle-text {
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .toggle-text a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .toggle-text a:hover {
+            text-decoration: underline;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .app-header h2 {
+            color: #333;
+        }
+
+        .user-info {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #fee;
+        }
+
+        table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    table-layout: fixed; /* NEW: Fixed layout prevents overflow */
+}
+
+th, td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    word-wrap: break-word; /* NEW: Wrap long text */
+    overflow-wrap: break-word; /* NEW: Break long words */
+}
+
+th {
+    background: #667eea;
+    color: white;
+    font-weight: 600;
+}
+
+/* NEW: Set specific column widths */
+th:nth-child(1), td:nth-child(1) { /* Name */
+    width: 25%;
+}
+
+th:nth-child(2), td:nth-child(2) { /* Amount */
+    width: 20%;
+}
+
+th:nth-child(3), td:nth-child(3) { /* Due Date */
+    width: 18%;
+}
+
+th:nth-child(4), td:nth-child(4) { /* Status */
+    width: 27%;
+}
+
+th:nth-child(5), td:nth-child(5) { /* Action */
+    width: 10%;
+    text-align: center;
+}
+
+tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.amount {
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 25px;
+    background: #eee;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    transition: width 0.3s;
+    color: white;
+    font-weight: bold;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap; /* NEW: Prevent text wrapping in progress bar */
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85em;
+    white-space: nowrap; /* NEW: Prevent button text wrapping */
+}
+
+/* NEW: Mobile responsive adjustments */
+@media (max-width: 768px) {
+    table {
+        font-size: 0.8em;
+    }
+    
+    th, td {
+        padding: 8px 4px;
+    }
+    
+    th:nth-child(1), td:nth-child(1) { /* Name */
+        width: 22%;
+    }
+    
+    th:nth-child(2), td:nth-child(2) { /* Amount */
+        width: 22%;
+    }
+    
+    th:nth-child(3), td:nth-child(3) { /* Due Date */
+        width: 20%;
+    }
+    
+    th:nth-child(4), td:nth-child(4) { /* Status */
+        width: 26%;
+    }
+    
+    th:nth-child(5), td:nth-child(5) { /* Action */
+        width: 10%;
+    }
+    
+    .delete-btn {
+        padding: 4px 6px;
+        font-size: 0.75em;
+    }
+    
+    .amount {
+        font-size: 0.9em;
+    }
+}
+
+/* NEW: Extra small screens */
+/* Card layout for mobile */
+@media (max-width: 768px) {
+    #debtorTable {
+        display: none; /* Hide table on mobile */
+    }
+    
+    #debtorCards {
+        display: block; /* Show cards on mobile */
+    }
+}
+
+@media (min-width: 769px) {
+    #debtorCards {
+        display: none; /* Hide cards on desktop */
+    }
+}
+
+.debtor-card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.debtor-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.debtor-card-name {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #333;
+}
+
+.debtor-card-amount {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.debtor-card-info {
+    margin-bottom: 10px;
+}
+
+.debtor-card-label {
+    font-size: 0.85em;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+.debtor-card-value {
+    font-size: 1em;
+    color: #333;
+}
+
+.debtor-card-actions {
+    margin-top: 10px;
+
+
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Login/Signup Screen -->
+        <div id="authScreen" class="auth-container">
+            <h1 id="authTitle">Welcome Back</h1>
+            
+            <div id="authError" class="error-message hidden"></div>
+            <div id="authSuccess" class="success-message hidden"></div>
+
+            <form id="authForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter password (min 6 characters)" required>
+                </div>
+                
+                <button type="button" class="btn primary-btn" id="loginBtn">Login</button>
+                <button type="button" class="btn primary-btn hidden" id="signupBtn">Create Account</button>
+            </form>
+
+            <p class="toggle-text" id="toggleText">
+                Don't have an account? <a href="#" onclick="toggleAuth(true); return false;">Sign Up</a>
+            </p>
+        </div>
+
+        <!-- Main App Screen -->
+        <div id="appScreen" class="hidden">
+            <div class="app-header">
+                <div>
+                    <h2>💰 My EMI's / Payables</h2>
+                    <div class="user-info" id="userEmail"></div>
+                </div>
+                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+            
+            <button class="btn primary-btn" onclick="openModal()">+ Add New Debtor</button>
+            
+            <div id="loading" class="loading hidden">Loading your data...</div>
+            <div id="emptyState" class="empty-state hidden">
+                <h3>No Debtors Yet</h3>
+                <p>Click "Add New Debtor" to get started</p>
+            </div>
+
+            <table id="debtorTable" class="hidden">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>Due Date ⬆️</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="debtorList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Debtor Modal -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Add New Debtor</h3>
+            <form id="debtorForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="newName">Name</label>
+                    <input type="text" id="newName" placeholder="Enter debtor name" required>
+                </div>
+                <div class="form-group">
+                    <label for="newAmount">Amount (₹)</label>
+                    <input type="number" id="newAmount" placeholder="Enter amount" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="newDate">Due Date</label>
+                    <input type="date" id="newDate" required>
+                </div>
+                <button type="button" class="btn primary-btn" id="saveBtn">Save</button>
+                <button type="button" class="btn secondary-btn" onclick="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // 🔥 REPLACE WITH YOUR FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6dktJiBeZJYqEHpAWTGX_vwXQNDQyEOA",
+			  authDomain: "payablelistdebtors.firebaseapp.com",
+			  projectId: "payablelistdebtors",
+			  databaseURL: "https://payablelistdebtors-default-rtdb.asia-southeast1.firebasedatabase.app/",
+			  storageBucket: "payablelistdebtors.firebasestorage.app",
+			  messagingSenderId: "476726640306",
+			  appId: "1:476726640306:web:94e927c47a16c725cd13ab",
+			  measurementId: "G-ZMM4QD23WR"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // --- Helper Functions ---
+        function showError(message) {
+            const errorDiv = document.getElementById('authError');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            document.getElementById('authSuccess').classList.add('hidden');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('authSuccess');
+            successDiv.textContent = message;
+            successDiv.classList.remove('hidden');
+            document.getElementById('authError').classList.add('hidden');
+        }
+
+        function clearMessages() {
+            document.getElementById('authError').classList.add('hidden');
+            document.getElementById('authSuccess').classList.add('hidden');
+        }
+
+        // --- Auth Toggle ---
+        window.toggleAuth = (isSignup) => {
+            clearMessages();
+            document.getElementById('authTitle').textContent = isSignup ? "Create Account" : "Welcome Back";
+            document.getElementById('loginBtn').classList.toggle('hidden', isSignup);
+            document.getElementById('signupBtn').classList.toggle('hidden', !isSignup);
+            document.getElementById('toggleText').innerHTML = isSignup ? 
+                'Already have an account? <a href="#" onclick="toggleAuth(false); return false;">Login</a>' : 
+                'Don\'t have an account? <a href="#" onclick="toggleAuth(true); return false;">Sign Up</a>';
+        };
+
+        // --- Login ---
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            clearMessages();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showError('Please enter both email and password');
+                return;
+            }
+
+            try {
+                document.getElementById('loginBtn').disabled = true;
+                document.getElementById('loginBtn').textContent = 'Logging in...';
+                
+                await signInWithEmailAndPassword(auth, email, password);
+                showSuccess('Login successful!');
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed. ';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Incorrect password.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Invalid email address.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage += 'Too many failed attempts. Try again later.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showError(errorMessage);
+            } finally {
+                document.getElementById('loginBtn').disabled = false;
+                document.getElementById('loginBtn').textContent = 'Login';
+            }
+        });
+
+        // --- Signup ---
+        document.getElementById('signupBtn').addEventListener('click', async () => {
+            clearMessages();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showError('Please enter both email and password');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+
+            try {
+                document.getElementById('signupBtn').disabled = true;
+                document.getElementById('signupBtn').textContent = 'Creating account...';
+                
+                await createUserWithEmailAndPassword(auth, email, password);
+                showSuccess('Account created successfully!');
+            } catch (error) {
+                console.error('Signup error:', error);
+                let errorMessage = 'Signup failed. ';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += 'This email is already registered. Try logging in.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Invalid email address.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'Password is too weak. Use at least 6 characters.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showError(errorMessage);
+            } finally {
+                document.getElementById('signupBtn').disabled = false;
+                document.getElementById('signupBtn').textContent = 'Create Account';
+            }
+        });
+
+        // --- Logout ---
+        window.logout = async () => {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    await signOut(auth);
+                } catch (error) {
+                    alert('Logout failed: ' + error.message);
+                }
+            }
+        };
+
+        // --- Auth State Observer ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is logged in
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                document.getElementById('userEmail').textContent = user.email;
+                loadData(user.uid);
+            } else {
+                // User is logged out
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('appScreen').classList.add('hidden');
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                clearMessages();
+            }
+        });
+
+        // --- Load User Data ---
+        function loadData(uid) {
+            const userRef = ref(db, 'users/' + uid + '/debtors');
+            const loading = document.getElementById('loading');
+            const emptyState = document.getElementById('emptyState');
+            const table = document.getElementById('debtorTable');
+            const list = document.getElementById('debtorList');
+
+            loading.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            table.classList.add('hidden');
+
+            onValue(userRef, (snapshot) => {
+                loading.classList.add('hidden');
+                list.innerHTML = "";
+                const data = snapshot.val();
+                
+                if (!data || Object.keys(data).length === 0) {
+                    emptyState.classList.remove('hidden');
+                    table.classList.add('hidden');
+                    return;
+                }
+
+                emptyState.classList.add('hidden');
+                table.classList.remove('hidden');
+
+                // Convert to array and sort by due date
+                const debtorsArray = Object.entries(data).map(([key, debtor]) => ({
+                    key,
+                    ...debtor
+                }));
+
+                debtorsArray.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                debtorsArray.forEach(({ key, name, amount, date }) => {
+                    const daysLeft = Math.ceil((new Date(date) - new Date()) / (1000 * 60 * 60 * 24));
+                    const color = daysLeft <= 0 ? '#dc3545' : daysLeft <= 5 ? '#fd7e14' : daysLeft <= 10 ? '#ffc107' : '#28a745';
+                    const width = Math.min(100, Math.max(0, (daysLeft / 30) * 100));
+                    
+                    let statusText = daysLeft <= 0 ? 'OVERDUE!' : `${daysLeft} days`;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${name}</td>
+                        <td class="amount">₹${Number(amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                        <td>${new Date(date).toLocaleDateString('en-IN')}</td>
+                        <td>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width:${width}%; background:${color};">
+                                    ${width > 20 ? statusText : ''}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteItem('${key}')">Delete</button>
+                        </td>
+                    `;
+                    list.appendChild(row);
+                });
+            });
+        }
+
+        // --- Modal Functions ---
+        window.openModal = () => {
+            document.getElementById('modal').classList.remove('hidden');
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('newDate').setAttribute('min', today);
+        };
+
+        window.closeModal = () => {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('debtorForm').reset();
+        };
+
+        // --- Save Debtor ---
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Please login first');
+                return;
+            }
+
+            const name = document.getElementById('newName').value.trim();
+            const amount = document.getElementById('newAmount').value;
+            const date = document.getElementById('newDate').value;
+
+            if (!name || !amount || !date) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            push(ref(db, 'users/' + user.uid + '/debtors'), {
+                name: name,
+                amount: parseFloat(amount),
+                date: date
+            });
+
+            closeModal();
+        });
+
+        // --- Delete Debtor ---
+        window.deleteItem = (key) => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            if (confirm('Are you sure you want to delete this debtor?')) {
+                remove(ref(db, 'users/' + user.uid + '/debtors/' + key));
+            }
+        };
+
+        // Allow Enter key to submit
+        document.getElementById('email').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const loginBtn = document.getElementById('loginBtn');
+                const signupBtn = document.getElementById('signupBtn');
+                if (!loginBtn.classList.contains('hidden')) loginBtn.click();
+                else signupBtn.click();
+            }
+        });
+
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const loginBtn = document.getElementById('loginBtn');
+                const signupBtn = document.getElementById('signupBtn');
+                if (!loginBtn.classList.contains('hidden')) loginBtn.click();
+                else signupBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
